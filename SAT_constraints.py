@@ -1,23 +1,28 @@
+'''
+-----------------------------------------
+Only allow the library used MCT!
+-----------------------------------------
+'''
 from Read_Circuits import read_gates
 
-# File path
-#file_path = "/Users/liangchichen/Desktop/ATPG_SACF/Revlib_circuits/ham15_108.txt"  
-#file_path = "/Users/liangchichen/Desktop/ATPG_SACF/Revlib_circuits/hwb6_56.txt"  
-file_path = "/Users/liangchichen/Desktop/ATPG_SACF/Revlib_circuits/ham3_102.txt"  
-#file_path = "/Users/liangchichen/Desktop/ATPG_SACF/Revlib_circuits/toffoli_2.txt"  
-#file_path = "/Users/liangchichen/Desktop/ATPG_SACF/Revlib_circuits/ham7_106.txt"  
+def main():
+    # Calling the function to read gates number
+    gates_number, control_target_dont, line_number, constant = read_gates(file_path)
 
-# Calling the function to read gates number
-gates_number, control_target_dont, line_number = read_gates(file_path)
-'''
-print("Number of gates:", gates_number)
-print("Number of lines:", line_number)
-for gate_type, values in control_target_dict.items():
-    print("Gate Type:", gate_type)
-    for control, target, dont_care in values:
-        print("Control:", control, "Target:", target, "Don't Care:", dont_care)
+    '''
+    # Calling the function to read the reversible circuits based on MCT library
+    gates_number, control_target_dont, line_number = read_gates(file_path)
+    print("Number of gates:", gates_number, end="\n")
+    print("Number of lines:", line_number, end="\n\n")
+    print("Control, Target, Don't care: ", end="\n")
+    for values in control_target_dont:
+        print(values)
+    '''
 
-'''
+    equal_constraints, xor_constraints = funtional_contraints(gates_number, control_target_dont, line_number)
+    xor_constraints_faulty, fault_active_constraints_control, fault_active_constraints_faulty = fault_constraints(control_target_dont, xor_constraints)
+    addtion_constraints = additional_constraints(constant, line_number)
+
 def funtional_contraints(gates_number, control_target_dont, line_number):
     equal_constraints = []
     xor_constraints = []
@@ -72,8 +77,25 @@ def fault_constraints(control_target_dont, xor_constraints):
     print("The fault activation constraints (fault control line = 0): ", 
           fault_active_constraints_faulty, end="\n\n")
     return xor_constraints_faulty, fault_active_constraints_control, fault_active_constraints_faulty
-def additional_constraints():
-    return
 
-equal_constraints, xor_constraints = funtional_contraints(gates_number, control_target_dont, line_number)
-xor_constraints_faulty, fault_active_constraints_control, fault_active_constraints_faulty = fault_constraints(control_target_dont, xor_constraints)
+def additional_constraints(constant, line_number):
+    addition_constraints = []
+    circuit_input = ['x{}_{}'.format(1, i+1)for i in range(line_number)]
+    for idx in range(len(constant)):
+        if constant[idx] == 0 or constant[idx] == 1:
+            addition_constraints.append((circuit_input[idx], constant[idx]))
+    if not addition_constraints:
+        print("No additional constraint. ", end="\n\n")
+    else:
+        print("The additional constraints: (Inputs are constant): ", addition_constraints, end="\n\n")
+    return addition_constraints
+
+if __name__ == '__main__':
+    # File path
+    #file_path = "/Users/liangchichen/Desktop/ATPG_SACF/Revlib_circuits/ham15_108.real"  
+    #file_path = "/Users/liangchichen/Desktop/ATPG_SACF/Revlib_circuits/hwb6_56.real"  
+    file_path = "/Users/liangchichen/Desktop/ATPG_SACF/Revlib_circuits/ham3_102.real"  
+    #file_path = "/Users/liangchichen/Desktop/ATPG_SACF/Revlib_circuits/toffoli_2.real"  
+    #file_path = "/Users/liangchichen/Desktop/ATPG_SACF/Revlib_circuits/ham7_106.real" 
+    #file_path = "/Users/liangchichen/Desktop/ATPG_SACF/Revlib_circuits/decode24-v0_38.real" 
+    main()
