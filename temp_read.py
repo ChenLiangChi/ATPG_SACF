@@ -12,6 +12,10 @@ def read_gates(file_path):
                 variables = line.split()[1:]
             if line.startswith('.outputs'):
                 outputs = line.split()[1:]
+            '''
+            if line.startswith('.constants'):
+                constant = line.split()[1:]
+            '''
             if line.startswith('t'):
                 # Increment gates_number by 1
                 gates_number += 1
@@ -41,9 +45,9 @@ def read_gates(file_path):
 
 '''
 # File path
-file_path = "/Users/liangchichen/Desktop/ATPG_SACF/Relib_circuits/ham15_108.txt" 
-#file_path = "/Users/liangchichen/Desktop/ATPG_SACF/Relib_circuits/ham3_102.txt"  
-#file_path = "/Users/liangchichen/Desktop/ATPG_SACF/Relib_circuits/toffoli_2.txt"  
+file_path = "/Users/liangchichen/Desktop/ATPG_SACF/Revlib_circuits/ham15_108.txt" 
+#file_path = "/Users/liangchichen/Desktop/ATPG_SACF/Revlib_circuits/ham3_102.txt"  
+#file_path = "/Users/liangchichen/Desktop/ATPG_SACF/Revlib_circuits/toffoli_2.txt"  
 gates_number, control_target_dict, line_number = read_gates(file_path)
 
 # Calling the function to read gates number

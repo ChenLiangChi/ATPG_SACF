@@ -10,8 +10,10 @@ def read_gates(file_path):
                 line_number = int(line[9:])
             if line.startswith('.variables'):
                 variables = line.split()[1:]
-            if line.startswith('.outputs'):
-                outputs = line.split()[1:]
+            '''
+            if line.startswith('.constants'):
+                constant = line.split()[1:]
+            '''
             if line.startswith('t'):
                 # Increment gates_number by 1
                 gates_number += 1
