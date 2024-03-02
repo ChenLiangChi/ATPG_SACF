@@ -5,24 +5,6 @@ Only allow the library used MCT!
 '''
 from Read_Circuits import read_gates
 
-def main():
-    # Calling the function to read gates number
-    gates_number, control_target_dont, line_number, constant = read_gates(file_path)
-
-    '''
-    # Calling the function to read the reversible circuits based on MCT library
-    gates_number, control_target_dont, line_number = read_gates(file_path)
-    print("Number of gates:", gates_number, end="\n")
-    print("Number of lines:", line_number, end="\n\n")
-    print("Control, Target, Don't care: ", end="\n")
-    for values in control_target_dont:
-        print(values)
-    '''
-
-    equal_constraints, xor_constraints = funtional_contraints(gates_number, control_target_dont, line_number)
-    xor_constraints_faulty, fault_active_constraints_control, fault_active_constraints_faulty = fault_constraints(control_target_dont, xor_constraints)
-    addtion_constraints = additional_constraints(constant, line_number)
-
 def funtional_contraints(gates_number, control_target_dont, line_number):
     equal_constraints = []
     xor_constraints = []
@@ -90,12 +72,29 @@ def additional_constraints(constant, line_number):
         print("The additional constraints: (Inputs are constant): ", addition_constraints, end="\n\n")
     return addition_constraints
 
-if __name__ == '__main__':
-    # File path
-    #file_path = "/Users/liangchichen/Desktop/ATPG_SACF/Revlib_circuits/ham15_108.real"  
-    #file_path = "/Users/liangchichen/Desktop/ATPG_SACF/Revlib_circuits/hwb6_56.real"  
-    file_path = "/Users/liangchichen/Desktop/ATPG_SACF/Revlib_circuits/ham3_102.real"  
-    #file_path = "/Users/liangchichen/Desktop/ATPG_SACF/Revlib_circuits/toffoli_2.real"  
-    #file_path = "/Users/liangchichen/Desktop/ATPG_SACF/Revlib_circuits/ham7_106.real" 
-    #file_path = "/Users/liangchichen/Desktop/ATPG_SACF/Revlib_circuits/decode24-v0_38.real" 
-    main()
+'''
+# File path
+#file_path = "/Users/liangchichen/Desktop/ATPG_SACF/Revlib_circuits/ham15_108.real"  
+#file_path = "/Users/liangchichen/Desktop/ATPG_SACF/Revlib_circuits/hwb6_56.real"  
+file_path = "/Users/liangchichen/Desktop/ATPG_SACF/Revlib_circuits/ham3_102.real"  
+#file_path = "/Users/liangchichen/Desktop/ATPG_SACF/Revlib_circuits/toffoli_2.real"  
+#file_path = "/Users/liangchichen/Desktop/ATPG_SACF/Revlib_circuits/ham7_106.real" 
+#file_path = "/Users/liangchichen/Desktop/ATPG_SACF/Revlib_circuits/decode24-v0_38.real" 
+
+# Calling the function to read gates number
+gates_number, control_target_dont, line_number, constant = read_gates(file_path)
+
+
+# Calling the function to read the reversible circuits based on MCT library
+gates_number, control_target_dont, line_number = read_gates(file_path)
+print("Number of gates:", gates_number, end="\n")
+print("Number of lines:", line_number, end="\n\n")
+print("Control, Target, Don't care: ", end="\n")
+for values in control_target_dont:
+    print(values)
+
+
+equal_constraints, xor_constraints = funtional_contraints(gates_number, control_target_dont, line_number)
+xor_constraints_faulty, fault_active_constraints_control, fault_active_constraints_faulty = fault_constraints(control_target_dont, xor_constraints)
+addition_constraints = additional_constraints(constant, line_number)
+'''
