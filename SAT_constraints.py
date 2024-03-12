@@ -43,14 +43,17 @@ def fault_constraints(control_target_dont, xor_constraints):
     for values in control_target_dont:
         # Each don't care line can be single additional control fault
         current_control, current_target, faulty_control = values
+        '''
         if not faulty_control:
             xor_constraints_faulty.append((*xor_constraints[gate_idx],))
             fault_active_constraints_faulty.append((),)
         else:
-            for idx in range(len(faulty_control)):
-                xor_constraints_faulty.append((*xor_constraints[gate_idx], faulty_control[idx]))
-                fault_active_constraints_faulty.append((faulty_control[idx], 0))
-        for idx in range(len(current_control)):
+        '''
+        for idx in range(len(faulty_control)):
+            xor_constraints_faulty.append((*xor_constraints[gate_idx], faulty_control[idx]))
+            fault_active_constraints_faulty.append((faulty_control[idx], 0))
+        if faulty_control:
+            for idx in range(len(current_control)):
                 fault_active_constraints_control.append((current_control[idx], 1))        
         gate_idx += 1
     print("The XOR constraints include SACF: ", xor_constraints_faulty, end="\n\n")
