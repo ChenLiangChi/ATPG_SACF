@@ -1,11 +1,14 @@
+'''
+-----------------------------------------
+Only allow the used library: MCT!
+-----------------------------------------
+'''
 from SAT_constraints import funtional_contraints
 from SAT_constraints import fault_constraints
 from SAT_constraints import additional_constraints
 from Read_Circuits import read_gates
 from pysat.formula import CNF
 from pysat.solvers import Minisat22
-# TODO:Add comment to each functions
-# TODO:Unsatisfied issue!
 
 def main(): 
     gate_idx = 0
@@ -14,12 +17,17 @@ def main():
     num_test = 0 # Number of testable SACF
     num_untest = 0 # Number of untestable SACF
     
-    # Calling the function to read gates number
+    '''
+        Get all required variables used to construct the constraints
+    '''
     gates_number, control_target_dont, line_number, constant = read_gates(file_path)
     equal_constraints, xor_constraints = funtional_contraints(gates_number, control_target_dont, line_number)
     xor_constraints_faulty, fault_active_constraints_control, fault_active_constraints_faulty = fault_constraints(control_target_dont, xor_constraints)
     addition_constraints = additional_constraints(constant, line_number)
     
+    '''
+        Print out labeled constraints and contraints in CNF form of all constraints
+    '''
     if equal_constraints:
         label_equal_constraints = label_to_int(equal_constraints)
         equal_constraints_cnf = equation_cnf(label_equal_constraints)
@@ -31,24 +39,29 @@ def main():
     if xor_constraints:
         label_xor_constraints = label_to_int(xor_constraints)
         xor_constraints_cnf = xor_to_cnf(label_xor_constraints)
-        print(label_xor_constraints)
-        print("The XOR constraints are: ", xor_constraints_cnf.clauses, end="\n\n")
+        #print(label_xor_constraints)
+        #print("The XOR constraints are: ", xor_constraints_cnf.clauses, end="\n\n")
     if xor_constraints_faulty:
         label_xor_constraints_faulty = label_to_int(xor_constraints_faulty)
         xor_constraints_faulty_cnf = xor_to_cnf(label_xor_constraints_faulty)
-        print(label_xor_constraints_faulty)
-        print("The XOR faulty constraints are: ", xor_constraints_faulty_cnf.clauses, end="\n\n")
+        #print(label_xor_constraints_faulty)
+        #print("The XOR faulty constraints are: ", xor_constraints_faulty_cnf.clauses, end="\n\n")
     if fault_active_constraints_control:
         label_fault_active_constraints_control = label_to_int(fault_active_constraints_control)
         fault_active_constraints_control_cnf = equation_01_cnf(label_fault_active_constraints_control)
-        print(fault_active_constraints_control_cnf.clauses, end="\n\n")
+        #print(fault_active_constraints_control_cnf.clauses, end="\n\n")
     if fault_active_constraints_faulty:
         label_fault_active_constraints_faulty = label_to_int(fault_active_constraints_faulty)
         fault_active_constraints_faulty_cnf = equation_01_cnf(label_fault_active_constraints_faulty)
-        print(fault_active_constraints_faulty_cnf.clauses, end="\n\n")
+        #print(fault_active_constraints_faulty_cnf.clauses, end="\n\n")
         
-    print(label_map, end="\n\n")
+    #print("The map mapped the node to an integer: ", label_map, end="\n\n")
     
+    '''
+        For each gate, if there is a SACF exist, all constraints must be add to the solver.
+        If the problem is satisfied, the test pattern and the propagated results of whole circuit are printed.
+        Otherwise the problem is unsatisfied, and the given SACF should be untestable.
+    '''
     for gate in control_target_dont:
         #Get the numbers of control on each gate
         num_control = len(gate[0])
@@ -97,7 +110,11 @@ def main():
     print("Number of testable SACF: ", num_test)
     print("Number of untestable SACF: ", num_untest)
 
-    
+'''
+    Converting the form of node (Xa_b) into integers, 1 array is returned: new_id_constraints
+    -> new_id_constraints: The constraints based on integer (new label)
+    Noted: The global variable (dict.), label_map, represents the relation between new id and old label
+'''    
 def label_to_int(constraints):
     global label_map
     new_id_constraints = []
@@ -110,7 +127,11 @@ def label_to_int(constraints):
             new_id_tuple += (label_map[label_name],)
         new_id_constraints.append(new_id_tuple)
     return new_id_constraints
-    
+
+'''
+    Converting the equation constraints into CNF form, 1 element is returned: equ_cnf
+    equ_cnf: Multiple CNF clauses converted from constraints
+'''    
 def equation_cnf(constraints):
     equ_cnf = CNF()
     for idx in range(len(constraints)):
@@ -119,6 +140,10 @@ def equation_cnf(constraints):
     #print(equ_cnf.clauses)
     return equ_cnf
 
+'''
+    Converting the equation constraints that are equal to 0 or 1 into CNF form, 1 element is returned: equ_01_cnf
+    equ_01_cnf: Multiple CNF clauses converted from constraints
+'''
 def equation_01_cnf(constraints):
     equ_01_cnf = CNF()
     key_is_1 = label_map.get(1)
@@ -131,6 +156,10 @@ def equation_01_cnf(constraints):
                 equ_01_cnf.append([-constraint[0]])  
     return equ_01_cnf
 
+'''
+    Converting the XOR constraints (Next Target = Current Target ^ Controls) into CNF form, 1 element is returned:
+    xor_cnf: Multiple CNF clauses converted from constraints
+'''
 def xor_to_cnf(constraints):
     xor_cnf = CNF()
     for constraint in constraints:
@@ -149,6 +178,12 @@ def xor_to_cnf(constraints):
     #print(xor_cnf.clauses)
     return xor_cnf
 
+'''
+    Converting the SAT results (An array of integers) back into readable result (Xa_b = 0/1), 2 elements are returned:
+    sorted_output, primary_input
+    sorted_output: A sorted dict. that represents the value (0/1) of each node, e.g. {X1_1: 0, ...}
+    primary_input: An array represents the generated test pattern, e.g. [0, 0, 1] <-> X1_1=0; X1_2=0; X1_3=1
+'''
 def int_to_result(result):
     primary_input = []
     output = {}
@@ -170,6 +205,9 @@ def int_to_result(result):
             primary_input.append(sorted_output[key])
     return sorted_output, primary_input
 
+'''
+    Funtion helps to return the integer numbers (a and b of Xa_b) of the key to sort the dictionary
+'''
 def sort_dict(key):
     parts = key.split('_')
     return int(parts[0][1:]), int(parts[1])
@@ -177,12 +215,13 @@ def sort_dict(key):
 if __name__ == '__main__': 
     label_map = {}
     # File path
+    #file_path = "/Users/liangchichen/Desktop/ATPG_SACF/Revlib_circuits/toffoli_2.real"
+    #file_path = "/Users/liangchichen/Desktop/ATPG_SACF/Revlib_circuits/ham3_102.real"
+    file_path = "/Users/liangchichen/Desktop/ATPG_SACF/Revlib_circuits/decode24-v0_38.real"
     #file_path = "/Users/liangchichen/Desktop/ATPG_SACF/Revlib_circuits/ham15_108.real" 
     #file_path = "/Users/liangchichen/Desktop/ATPG_SACF/Revlib_circuits/alu-v1_28.real" 
-    file_path = "/Users/liangchichen/Desktop/ATPG_SACF/Revlib_circuits/rd32_272.real" 
-    #file_path = "/Users/liangchichen/Desktop/ATPG_SACF/Revlib_circuits/hwb6_56.real"  
-    #file_path = "/Users/liangchichen/Desktop/ATPG_SACF/Revlib_circuits/ham3_102.real"  
-    #file_path = "/Users/liangchichen/Desktop/ATPG_SACF/Revlib_circuits/toffoli_2.real"  
+    
+    #file_path = "/Users/liangchichen/Desktop/ATPG_SACF/Revlib_circuits/rd32_272.real" 
+    #file_path = "/Users/liangchichen/Desktop/ATPG_SACF/Revlib_circuits/hwb6_56.real"      
     #file_path = "/Users/liangchichen/Desktop/ATPG_SACF/Revlib_circuits/ham7_106.real" 
-    #file_path = "/Users/liangchichen/Desktop/ATPG_SACF/Revlib_circuits/decode24-v0_38.real"
     main()

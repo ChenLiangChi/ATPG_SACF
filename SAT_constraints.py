@@ -1,10 +1,20 @@
 '''
 -----------------------------------------
-Only allow the library used MCT!
+Only allow the used library: MCT!
 -----------------------------------------
 '''
+'''
+    Consists of 3 functions: functional_constraints(); fault_conctraints(); additional_constraints()
+    These functions are used to setup the SAT constraints based on circuit functionality, and seeking
+    for the possible constraints on "single additional control fault (SACF)"
+'''
 from Read_Circuits import read_gates
-
+'''
+    Constructing the circuit behavioral constraints, 2 arrays are returned: equal_constraint; xor_constraints
+    -> equal_constraints: The node on next gate is equal to current gate on same control or don't care line
+    -> xor_constraints: The node on next gate on the target line is equal to current target line XOR all current
+                     control lines
+'''
 def funtional_contraints(gates_number, control_target_dont, line_number):
     equal_constraints = []
     xor_constraints = []
@@ -33,7 +43,14 @@ def funtional_contraints(gates_number, control_target_dont, line_number):
     print("The constraints for control line and empty (a, b) <=> a=b: ", equal_constraints, end="\n\n")       
     print("The constraints for target line (a, b, c) <=> a=b^c: ", xor_constraints, end="\n\n")
     return equal_constraints, xor_constraints
-
+'''
+    Constructing the faulty (SACF) behavioral constraints, 3 arrays are returned: xor_constraints_faulty;
+    fault_active_constraints_control; fault_active_constraints_faulty
+    -> xor_constraints_faulty: The node on next gate on the target line is equal to current target line XOR all
+                            current control lines plus one faulty control line
+    -> fault_active_constraints_control: All control lines except faulty one are equal to 1 
+    -> fault_active_constraints_faulty: The faulty control line must equal to 0
+'''
 def fault_constraints(control_target_dont, xor_constraints):
     xor_constraints_faulty = []
     fault_active_constraints_control = []
@@ -43,12 +60,6 @@ def fault_constraints(control_target_dont, xor_constraints):
     for values in control_target_dont:
         # Each don't care line can be single additional control fault
         current_control, current_target, faulty_control = values
-        '''
-        if not faulty_control:
-            xor_constraints_faulty.append((*xor_constraints[gate_idx],))
-            fault_active_constraints_faulty.append((),)
-        else:
-        '''
         for idx in range(len(faulty_control)):
             xor_constraints_faulty.append((*xor_constraints[gate_idx], faulty_control[idx]))
             fault_active_constraints_faulty.append((faulty_control[idx], 0))
@@ -62,7 +73,10 @@ def fault_constraints(control_target_dont, xor_constraints):
     print("The fault activation constraints (fault control line = 0): ", 
           fault_active_constraints_faulty, end="\n\n")
     return xor_constraints_faulty, fault_active_constraints_control, fault_active_constraints_faulty
-
+'''
+    Constructing the additional constraints, such as constant inputs. 1 array is returned: addition_constraints
+    -> addition_constraints: If an input is constant, x1_a = const, where a is the line number
+'''
 def additional_constraints(constant, line_number):
     addition_constraints = []
     circuit_input = ['x{}_{}'.format(1, i+1)for i in range(line_number)]
@@ -74,6 +88,7 @@ def additional_constraints(constant, line_number):
     else:
         print("The additional constraints: (Inputs are constant): ", addition_constraints, end="\n\n")
     return addition_constraints
+
 
 '''
 # File path

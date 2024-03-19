@@ -1,9 +1,16 @@
 '''
 -----------------------------------------
-Only allow the library used MCT!
+Only allow the used library: MCT!
 -----------------------------------------
 '''
-# Function to read the gates number from the file
+'''
+    Function used to read the circuit description file, and convert it into the form can be applied in
+    SAT constrints. 4 variables are returned: gates_number; control_target_dont; line_number; constant
+    -> gates_number: Numbers of gate of the given circuit
+    -> control_target_dont: The nodes of control, target, and don't care lines of each gate
+    -> line_number: Numbers of line of the given circuit
+    -> constant: All constant on inputs
+'''
 def read_gates(file_path):
     gates_number = 0
     control_target_dont = []
@@ -12,11 +19,13 @@ def read_gates(file_path):
     with open(file_path, 'r') as file:
         for line in file:
             line = line.strip()
+            # Read line number
             if line.startswith('.numvars'):
                 line_number = int(line[9:])
+            # Read variables of the circuit
             if line.startswith('.variables'):
                 variables = line.split()[1:]
-                #print(variables)
+            # Read constants on inputs
             if line.startswith('.constants'):
                 substr = line.split(maxsplit=1)[-1]
                 for const in substr:
@@ -24,23 +33,24 @@ def read_gates(file_path):
                         constant.append(int(const))
                     else:
                         constant.append(const)
-                #print(constant)
+            '''
+                Read gate details
+                Each gate consist of 3 different elements: control; target; dont_care
+                control: all the control lines
+                target: the target line
+                dont_care: remaining lines which are not included in control or target
+                Noted: The node of each line of each gate is specified as the form xa_b,
+                       while a represents gate number and b represent line number
+            '''
             if line.startswith('t'):
-                # Increment gates_number by 1
                 gates_number += 1
-                # Extracting gate number
-                control_target_number = int(line[1:2])
+                control_target_number = int(line[1:2]) # Extracting gate number
                 if control_target_number >= 1:
-                    # Extracting don't care, control and target variables for gates with control_target_number > 1
-                    # Noted: The letters except the last of each toffoli gate description are always control lines
                     control = ['x{}_{}'.format(gates_number, variables.index(var) + 1) 
                                for var in line[3:(3+(2*(control_target_number-1))):2]]
-                    # Noted: The last letter of each toffoli gate description is always the target line
                     target = ['x{}_{}'.format(gates_number, variables.index(line[-1]) + 1)]
-                    # Noted: The rest of the letters are denoted as don't care 
                     dont_care = ['x{}_{}'.format(gates_number, variables.index(var) + 1) 
                                  for var in variables if var not in line[3::2]]
-                # Dynamically add keys to control_target_dict if needed
                 control_target_dont.append((control, target, dont_care))
     return gates_number, control_target_dont, line_number, constant
 
