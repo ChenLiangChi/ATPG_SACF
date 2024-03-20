@@ -217,8 +217,8 @@ if __name__ == '__main__':
     # File path
     #file_path = "/Users/liangchichen/Desktop/ATPG_SACF/Revlib_circuits/toffoli_2.real"
     #file_path = "/Users/liangchichen/Desktop/ATPG_SACF/Revlib_circuits/ham3_102.real"
-    file_path = "/Users/liangchichen/Desktop/ATPG_SACF/Revlib_circuits/decode24-v0_38.real"
-    #file_path = "/Users/liangchichen/Desktop/ATPG_SACF/Revlib_circuits/ham15_108.real" 
+    #file_path = "/Users/liangchichen/Desktop/ATPG_SACF/Revlib_circuits/decode24-v2_43.real"
+    file_path = "/Users/liangchichen/Desktop/ATPG_SACF/Revlib_circuits/ham15_108.real" 
     #file_path = "/Users/liangchichen/Desktop/ATPG_SACF/Revlib_circuits/alu-v1_28.real" 
     
     #file_path = "/Users/liangchichen/Desktop/ATPG_SACF/Revlib_circuits/rd32_272.real" 
